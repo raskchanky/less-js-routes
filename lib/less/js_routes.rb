@@ -15,7 +15,6 @@ module Less
             s << seg.key.to_s.gsub(':', '')
           end
         end
-        s << 'verb'
         s <<( others) unless others.blank?
         s.join(', ')
       end
@@ -48,12 +47,18 @@ function less_json_eval(json){return eval('(' +  json + ')')}
 function less_get_params(obj){
   #{'console.log("less_get_params(" + obj + ")");' if @@debug} 
   if (jQuery) { return obj }
+  return less_to_querystring(obj, '');
+}
+
+function less_to_querystring(obj, prefix) {
+  #{'console.log("less_to_querystring(" + obj + ")");' if @@debug} 
   if (obj == null) {return '';}
   var s = [];
   for (prop in obj){
     s.push(prop + "=" + obj[prop]);
   }
-  return s.join('&') + '';
+  if (s.length == 0) {return '';}
+  return prefix + s.join('&') + '';
 }
 
 function less_merge_objects(a, b){
@@ -112,9 +117,9 @@ JS
 # s << route.inspect# if route.instance_variable_get(:@conditions)[:method] == :put
           s << "/////\n//#{route}\n" if @@debug
           s << <<-JS
-function #{name}_path(#{build_params route.segments}){ return '#{build_path route.segments}';}
-function #{name}_ajax(#{build_params route.segments, 'params'}, options){ return less_ajax('#{build_path route.segments}', verb, params, options);}
-function #{name}_ajaxx(#{build_params route.segments, 'params'}, options){ return less_ajaxx('#{build_path route.segments}', verb, params, options);}
+function #{name}_path(#{build_params route.segments, 'params'}){ return '#{build_path route.segments}' + less_to_querystring(params, '?');}
+function #{name}_ajax(#{build_params route.segments, 'verb, params, options'}){ return less_ajax('#{build_path route.segments}', verb, params, options);}
+function #{name}_ajaxx(#{build_params route.segments, 'verb, params, options'}){ return less_ajaxx('#{build_path route.segments}', verb, params, options);}
 JS
         end
         File.open(RAILS_ROOT + '/public/javascripts/less_routes.js', 'w') do |f|

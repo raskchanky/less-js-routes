@@ -43,16 +43,17 @@ In your layout:
   <%= javascript_include_tag :defaults, 'less_routes' %>
   
 In your applicaiton.js (or any script block):
-  users_path() => '/users/'
-  users_ajax() => GET '/users/'
-  user_path(1) => '/users/1/'
+  users_path() => '/users'
+  users_path({page: 1}) => '/users?page=1'
+  users_ajax() => GET '/users'
+  user_path(1) => '/users/1'
   user_ajax(1) => GET '/user/1'
-  user_profile_path(1,5) => '/users/1/profiles/5/'
-  user_profile_ajax(1,5) => GET '/users/1/profiles/5/'
-  user_ajax('post', {name: 'fonzie', password: 'cool', password_confirmation: 'cool'}) => POST '/users/'
-  change_password_user_ajax('put', {password: 'cool', new_password: '2cool', password_confirmation: '2cool'}) => PUT '/users/'
+  user_profile_path(1,5) => '/users/1/profiles/5'
+  user_profile_ajax(1,5) => GET '/users/1/profiles/5'
+  user_ajax('post', {name: 'fonzie', password: 'cool', password_confirmation: 'cool'}) => POST '/users'
+  change_password_user_ajax('put', {password: 'cool', new_password: '2cool', password_confirmation: '2cool'}) => PUT '/users'
   
-  _path functions return the path and take the proper variables, :id, :nested_id, :format, etc.
+  _path functions return the path and take the proper variables, :id, :nested_id, :format, etc.  Also a json object of querystring parameters can be passed as the last optional parameter.
   _ajax functions return the server response of the ajax call. The parameters are (1) the proper variable, :id, :nested_id, :format, :etc, (2) the http verb (get, post, put, delete) (get is default), an object of parameters, an object of any jQuery.ajax options that should be added to the ajax call.
   
 
