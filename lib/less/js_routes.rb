@@ -53,6 +53,7 @@ function less_get_params(obj){
 function less_to_querystring(obj, prefix) {
   #{'console.log("less_to_querystring(" + obj + ")");' if @@debug} 
   if (obj == null) {return '';}
+  if (typeof(obj) == 'string') {return prefix + obj;}
   var s = [];
   for (prop in obj){
     s.push(prop + "=" + obj[prop]);
@@ -76,8 +77,14 @@ function less_ajax(url, verb, params, options){
   var res;
   if (jQuery){
     v = verb.toLowerCase() == 'get' ? 'GET' : 'POST'
-    if (verb.toLowerCase() == 'get' || verb.toLowerCase() == 'post'){p = less_get_params(params);}
-    else{p = less_get_params(less_merge_objects({'_method': verb.toLowerCase()}, params))} 
+    p = less_get_params(params);
+    if (verb.toLowerCase() == 'put' || verb.toLowerCase() == 'delete') {
+      if (typeof(p) == 'string') {
+        p = ['_method=' + verb.toLowerCase(), p].join('&');
+      } else {
+        p = less_merge_objects({'_method': verb.toLowerCase()}, p)
+      }
+    }
     #{'console.log("less_merge_objects:v : " + v);' if @@debug} 
     #{'console.log("less_merge_objects:p : " + p);' if @@debug} 
     res = jQuery.ajax(less_merge_objects({async:false, url: url, type: v, data: p}, options)).responseText;
@@ -92,8 +99,14 @@ function less_ajaxx(url, verb, params, options){
   if (verb == undefined) {verb = 'get';}
   if (jQuery){
     v = verb.toLowerCase() == 'get' ? 'GET' : 'POST'
-    if (verb.toLowerCase() == 'get' || verb.toLowerCase() == 'post'){p = less_get_params(params);}
-    else{p = less_get_params(less_merge_objects({'_method': verb.toLowerCase()}, params))} 
+    p = less_get_params(params);
+    if (verb.toLowerCase() == 'put' || verb.toLowerCase() == 'delete') {
+      if (typeof(p) == 'string') {
+        p = ['_method=' + verb.toLowerCase(), p].join('&');
+      } else {
+        p = less_merge_objects({'_method': verb.toLowerCase()}, p)
+      }
+    }
     #{'console.log("less_merge_objects:v : " + v);' if @@debug} 
     #{'console.log("less_merge_objects:p : " + p);' if @@debug} 
     jQuery.ajax(less_merge_objects({ url: url, type: v, data: p, complete: function(r){eval(r.responseText)}}, options));

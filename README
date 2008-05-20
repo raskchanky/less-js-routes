@@ -53,8 +53,8 @@ In your applicaiton.js (or any script block):
   user_ajax('post', {name: 'fonzie', password: 'cool', password_confirmation: 'cool'}) => POST '/users'
   change_password_user_ajax('put', {password: 'cool', new_password: '2cool', password_confirmation: '2cool'}) => PUT '/users'
   
-  _path functions return the path and take the proper variables, :id, :nested_id, :format, etc.  Also a json object of querystring parameters can be passed as the last optional parameter.
-  _ajax functions return the server response of the ajax call. The parameters are (1) the proper variable, :id, :nested_id, :format, :etc, (2) the http verb (get, post, put, delete) (get is default), an object of parameters, an object of any jQuery.ajax options that should be added to the ajax call.
+  _path functions return the path and take the proper variables, :id, :nested_id, :format, etc.  A json object or pre-formatted string of querystring parameters can be passed as the last optional parameter.
+  _ajax functions return the server response of the ajax call. The parameters are (1) the proper variable, :id, :nested_id, :format, :etc, (2) the http verb (get, post, put, delete) (get is default), an object or pre-formatted string of parameters, an object of any jQuery.ajax options that should be added to the ajax call.
   
 
 
