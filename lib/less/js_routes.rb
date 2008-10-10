@@ -4,9 +4,7 @@ module Less
   class JsRoutes
     class << self
       
-      
       @@debug = false
-
 
       def build_params segs, others = ''
         s = []
@@ -117,9 +115,6 @@ function less_ajaxx(url, verb, params, options){
 JS
       end
 
-
-
-
       def generate!
         s = get_js_helpers
         ActionController::Routing::Routes.routes.each do |route|
@@ -139,7 +134,6 @@ JS
           f.write s
         end
       end
-
     end
   end
 end
