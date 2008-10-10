@@ -6,18 +6,18 @@ module Less
       
       @@debug = false
 
-      def build_params segs, others = ''
+      def build_params(segs, others='')
         s = []
         segs.each do |seg|
           if seg.is_a?(ActionController::Routing::DynamicSegment)
             s << seg.key.to_s.gsub(':', '')
           end
         end
-        s <<( others) unless others.blank?
+        s << others unless others.blank?
         s.join(', ')
       end
 
-      def build_path segs
+      def build_path(segs)
         s = ""
         segs.each_index do |i|
           seg = segs[i]
@@ -31,15 +31,15 @@ module Less
         s
       end
 
-      def get_params others = ''
+      def get_params(others='')
         x = ''
         x += " + " unless x.blank? || others.blank?
         x += "less_get_params(#{others})" unless others.blank?
         x
       end
 
-      def get_js_helpers
-        <<-JS
+      def get_js_helpers(ajax)
+        code = <<-JS
 function less_json_eval(json){return eval('(' +  json + ')')}  
 
 function less_get_params(obj){
@@ -68,7 +68,9 @@ function less_merge_objects(a, b){
   for (prop in b){z[prop] = b[prop]}
   return z;
 }
-
+JS
+        if ajax
+          code += <<-JS
 function less_ajax(url, verb, params, options){
   #{'console.log("less_ajax(" + url + ", " + verb + ", " + params +", " + options + ")");' if @@debug} 
   if (verb == undefined) {verb = 'get';}
@@ -113,10 +115,12 @@ function less_ajaxx(url, verb, params, options){
   }
 }
 JS
+        end
+        code
       end
 
-      def generate!
-        s = get_js_helpers
+      def generate!(ajax=false)
+        s = get_js_helpers(ajax)
         ActionController::Routing::Routes.routes.each do |route|
           name = ActionController::Routing::Routes.named_routes.routes.index(route).to_s
           next if name.blank?
@@ -126,9 +130,13 @@ JS
           s << "/////\n//#{route}\n" if @@debug
           s << <<-JS
 function #{name}_path(#{build_params route.segments, 'params'}){ return '#{build_path route.segments}' + less_to_querystring(params, '?');}
+JS
+          if ajax
+            s << <<-JS
 function #{name}_ajax(#{build_params route.segments, 'verb, params, options'}){ return less_ajax('#{build_path route.segments}', verb, params, options);}
 function #{name}_ajaxx(#{build_params route.segments, 'verb, params, options'}){ return less_ajaxx('#{build_path route.segments}', verb, params, options);}
 JS
+          end
         end
         File.open(RAILS_ROOT + '/public/javascripts/less_routes.js', 'w') do |f|
           f.write s
