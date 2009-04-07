@@ -6,18 +6,18 @@ module Less
       
       @@debug = false
 
-      def build_params(segs, others='')
+      def build_params(segs, others='', format=nil)
         s = []
         segs.each do |seg|
           if seg.is_a?(ActionController::Routing::DynamicSegment)
-            s << seg.key.to_s.gsub(':', '')
+            s << seg.key.to_s.gsub(':', '') unless seg.key.to_s == 'format' && format != true
           end
         end
         s << others unless others.blank?
         s.join(', ')
       end
 
-      def build_path(segs)
+      def build_path(segs, name, format=nil)
         s = ""
         segs.each_index do |i|
           seg = segs[i]
@@ -25,7 +25,7 @@ module Less
           if seg.is_a?(ActionController::Routing::DividerSegment) || seg.is_a?(ActionController::Routing::StaticSegment)
             s << seg.instance_variable_get(:@value) 
           elsif seg.is_a?(ActionController::Routing::DynamicSegment)
-            s << "' + #{seg.key.to_s.gsub(':', '')} + '"
+            s << "' + #{seg.key.to_s.gsub(':', '')} + '" if seg.key.to_s != 'format' || (seg.key.to_s == 'format' && (format == true || name =~ /^formatted_/))
           end
         end
         s
@@ -129,7 +129,7 @@ JS
 # s << route.inspect# if route.instance_variable_get(:@conditions)[:method] == :put
           s << "/////\n//#{route}\n" if @@debug
           s << <<-JS
-function #{name}_path(#{build_params route.segments, 'params'}){ return '#{build_path route.segments}' + less_to_querystring(params, '?');}
+function #{name}_path(#{build_params route.segments, 'params'}){ return '#{build_path route.segments, name}' + less_to_querystring(params, '?');}
 JS
           if ajax
             s << <<-JS
